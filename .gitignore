@@ -1,0 +1,7 @@
+.git/*
+.settings/*
+target/*
+src/main/js/node_modules/*
+src/main/resources/static/js/*
+.classpath
+.project
