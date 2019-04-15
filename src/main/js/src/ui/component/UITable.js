@@ -6,87 +6,91 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Button from '@material-ui/core/Button';
+import AddIcon from '@material-ui/icons/Add';
 import Paper from '@material-ui/core/Paper';
 import Tooltip from '@material-ui/core/Tooltip';
-import { updata } from '../../action';
+import classNames from 'classnames';
+import {updata} from '../../action';
 import Util from '../../util';
 
-const { MsgUtil } = Util;
+const {MsgUtil, ComponentUtil} = Util;
 
-const sortAction = (props, column, order, isOrderColumn, dispatch) => (e) => {
-  let orderDirection;
-  if (isOrderColumn) {
-    orderDirection = order === 'asc' ? 'desc' : 'asc';
-  } else {
-    orderDirection = 'asc';
-  }
-  const { page, rowsPerPage } = props._model.items;
+const filterSortAction = (props, orderBy, order, dispatch, page) => {
+
+  const { rowsPerPage } = props._model.model.query;
   const strParam = MsgUtil.computePageTableParam({
-    order: orderDirection,
-    orderBy: column,
+    order,
+    orderBy,
     rowsPerPage,
     page,
   });
   MsgUtil.get('/rest/item' + '?' + strParam, (json) => {
     if (MsgUtil.isSuccess(json)) {
       const result = {
-        ...props._model.items,
+        ...props._model.model.query,
         total: json.content.total,
         page: json.content.page,
         datas: json.content.datas,
-        order: orderDirection,
-        orderBy: column
+        order,
+        orderBy,
       };
       dispatch(updata({
-        path: '/_model/items',
+        path: '/_model/model/query',
       }, result));
     } else {
       // 缺少错误处理
     }
-  }, () => {
-
   })
+}
 
+const sortAction = (props, column, order, isOrderColumn, dispatch) => (e) => {
+  const {dispatch} = props;
+  const {page} = props._model.model.query;
+  let orderDirection;
+  if (isOrderColumn) {
+    orderDirection = order === 'asc' ? 'desc' : 'asc';
+  } else {
+    orderDirection = 'asc';
+  }
+  filterSortAction(props, column, orderDirection, dispatch, page);
 }
 
 const changePageAction = (props) => (event, page) => {
-  const { dispatch } = props;
-  dispatch(updata({
-    path: '/_model/items/page',
-  }, page));
+  const {dispatch} = props;
+  const {order, orderBy} = props._model.model.query;
+  filterSortAction(props, orderBy, order, dispatch, page);
 }
 
 const changePerPageAction = (props) => (event) => {
-  const { dispatch } = props;
-  dispatch(updata({
-    path: '/_model/items/rowsPerPage',
-  }, event.target.value));
+  const {dispatch} = props;
+  const {order, orderBy} = props._model.model.query;
+  filterSortAction(props, orderBy, order, dispatch, event.target.value);
 }
 
 const UITableHeader = (props) => {
   const { dispatch, _model } = props;
-  const { order, columns, orderBy, res } = _model.items;
+  const {res, action} = _model;
+  const {order, orderBy} = _model.model.query;
+  const {columns} = _model.show.query;
   return (
     <TableHead>
       <TableRow>
-        {columns.map(
+        {Object.keys(columns).map(
           column => (
             <TableCell
               key={column}
               align={'center'}
               padding={'default'}
-              sortDirection={orderBy === column ? order : false}
-            >
+              sortDirection={orderBy === column ? order : false}>
               <Tooltip
                 title={res[column]}
                 placement={'bottom-start'}
-                enterDelay={300}
-              >
+                enterDelay={300}>
                 <TableSortLabel
                   active={orderBy === column}
                   direction={order}
-                  onClick={sortAction(props, column, order, orderBy === column, dispatch)}
-                >
+                  onClick={sortAction(props, column, order, orderBy === column, dispatch)}>
                   {res[column]}
                 </TableSortLabel>
               </Tooltip>
@@ -98,19 +102,35 @@ const UITableHeader = (props) => {
   );
 }
 
-const UITableRow = (row, columns) => {
-  return columns.map((column, index, array) => <TableCell key={column} align='center'>{row[column]}</TableCell>);
+const UITableRow = (props, row, rowIndex, columns) => {
+  const {classes, dispatch, _model, theme} = props;
+  return Object.keys(columns).map((column, index, array) => {
+    const cmp = ComponentUtil.factory(columns[column].type, {
+      id: column,
+      model: row,
+      classes,
+      res: _model.res,
+      dispatch,
+      theme,
+      show: _model.show.query.columns[column],
+      path: '/_model/model/query/datas/' + row['_id'],
+    });
+
+    return <TableCell key={column} align='center'>{cmp}</TableCell>
+  });
 }
 
 const UITableBody = (props) => {
-  const { classes } = props;
-  const { datas, columns, res, rowsPerPage } = props._model.items;
-  const emptyRows = rowsPerPage - datas.length;
+  const {classes, _model} = props;
+  const {res, model} = _model;
+  const {datas, rowsPerPage} = model.query;
+  const {columns} = _model.show.query;
+  const emptyRows = rowsPerPage - Object.keys(datas).length;
   return (<TableBody>
     {Object.keys(datas).map((id, index, array) => {
         return (
           <TableRow className={classes.tableRow} key={id}>
-            {UITableRow(datas[id], columns)}
+            {UITableRow(props, datas[id], index, columns)}
           </TableRow>
         );
       })}
@@ -123,16 +143,38 @@ const UITableBody = (props) => {
   );
 }
 
+const createAction = props => event => {
+  const { dispatch } = props;
+  dispatch(updata({
+    path: '/_model/create',
+  }, {}));
+  dispatch(updata({
+    path: '/_model/show/state',
+  }, 'create'));
+}
+
+const UIOperation = (props) => {
+  const { classes } = props;
+  return (<Button variant="contained" color="primary" 
+    className={classes.tableButton}
+    onClick={createAction(props)}>
+      新增
+      <AddIcon className={classes.rightIcon} />
+    </Button>
+    );
+}
+
 /**
  * 表格
  * @param {object} props 
  */
 const UITable = (props) => {
   const { dispatch, classes } = props;
-  const { datas, total, order, orderBy, selected, rowsPerPage, page } = props._model.items;
+  const { datas, total, order, orderBy, selected, rowsPerPage, page } = props._model.model.query;
 
   return (
     <Paper className={classes.tablePaper}>
+      {UIOperation(props)}
       <div className={classes.tableWrapper}>
         <Table className={classes.table} aria-labelledby="tableTitle">
           {UITableHeader(props)}

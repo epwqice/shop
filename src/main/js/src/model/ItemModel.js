@@ -1,5 +1,12 @@
 const ItemModel = {
   _model: {
+    msgstate: {
+      visable: true,
+      info: '',
+    },
+    textfield: {
+      value: 'test',
+    },
     navigation: {
       value: 1,
     },
@@ -87,6 +94,7 @@ const ItemModel = {
       },
       value: { 
         index1: {
+          id: 'index1/uuid',
           name: '新鲜水果',
           items: ['item1', 'item2', 'item3', 'item4', 'item5', 'item6', 'item7', 'item8', 'item9', 'item10'],
         },

@@ -4,6 +4,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import benyi.shop.model.ItemModel;
 
-public interface ItemRepository extends MongoRepository<ItemModel, Integer> {
+public interface ItemRepository extends MongoRepository<ItemModel, String> {
 
 }

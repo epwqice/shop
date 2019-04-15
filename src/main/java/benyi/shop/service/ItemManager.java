@@ -2,7 +2,6 @@ package benyi.shop.service;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,7 @@ import benyi.shop.db.ItemRepository;
 import benyi.shop.model.ItemModel;
 import benyi.shop.model.ItemModels;
 
+
 @Component
 public class ItemManager {
 	
@@ -25,7 +25,7 @@ public class ItemManager {
 	
 	private ItemModel createAppleItem() {
     	ItemModel item1 = new ItemModel();
-    	item1.setId(UUID.randomUUID().toString());
+    	item1.set_id(UUID.randomUUID().toString());
     	item1.setName("苹果");
     	item1.setOldPrice(10);
     	item1.setPrice(4.5);
@@ -38,7 +38,7 @@ public class ItemManager {
     private ItemModel createOrangeItem(int i) {
     	ItemModel item2 = new ItemModel();
 //    	item2.setId(UUID.randomUUID().toString());
-    	item2.setId("item" + i);
+    	item2.set_id("item" + i);
     	item2.setName(i % 2 == 0 ? "橘子" : "苹果");
     	double oldPrice = Math.min(Math.random() * 100, 10);
     	item2.setOldPrice(oldPrice);
@@ -105,6 +105,34 @@ public class ItemManager {
     }
     
     /**
+     * 创建对象
+     * @param itemModel 商品模型
+     * @return 创建成功的商品模型
+     */
+    public ItemModel create(ItemModel itemModel) {
+    	itemModel.set_id(UUID.randomUUID().toString());
+    	return itemRep.insert(itemModel);
+    }
+    
+    /**
+     * 修改对象
+     * @param itemModel 商品模型
+     * @return 修改成功的商品模型
+     */
+    public ItemModel edit(ItemModel itemModel) {
+    	return itemRep.save(itemModel);
+    }
+    
+    /**
+     * 删除对象
+     * @param itemModel 商品模型
+     * @return 创建成功的商品模型
+     */
+    public void delete(String id) {
+    	itemRep.deleteById(id);
+    }
+    
+    /**
      * 分页查询
      * @param order 排序：asc/desc
      * @param orderBy 排序字段
@@ -139,7 +167,7 @@ public class ItemManager {
     	itemModel.setDatas(new HashMap<String, ItemModel>());
     	
     	for (ItemModel item : qResult) {
-    		itemModel.getDatas().put(item.getId(), item);
+    		itemModel.getDatas().put(item.get_id(), item);
 		}
     	
     	return itemModel;

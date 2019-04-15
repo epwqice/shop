@@ -4,14 +4,11 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
@@ -22,7 +19,13 @@ import MailIcon from '@material-ui/icons/Mail';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import blue from '@material-ui/core/colors/blue';
 import UITable from '../../ui/component/UITable';
+import UICreate from '../../ui/component/UICreate';
+import UIAppBar from '../../ui/component/UIAppBar';
 import { updata } from '../../action';
+import UICreateStyle from '../../ui/component/UICreateStyle';
+import UIComponentStyle from '../../ui/component/UIComponentStyle';
+import UISnackbar from '../../ui/component/UISnackbar';
+import UISnackbarStyle from '../../ui/component/UISnackbarStyle';
 
 const theme = createMuiTheme({
   palette: {
@@ -53,6 +56,9 @@ const styles = theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
+  },
+  appTitle: {
+    flexGrow: 1,
   },
   menuButton: {
     marginLeft: 12,
@@ -88,7 +94,7 @@ const styles = theme => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    padding: '0 8px',
+    padding: '0 24px',
     ...theme.mixins.toolbar,
   },
   content: {
@@ -97,18 +103,35 @@ const styles = theme => ({
   },
   tablePaper: {
     width: '100%',
-    marginTop: theme.spacing.unit * 3,
   },
   table: {
     minWidth: 1020,
   },
+  tableRow: {
+    height: '2.5em',
+  },
   tableWrapper: {
     overflowX: 'auto',
   },
+  tableButton: {
+    margin: theme.spacing.unit,
+  },
+  tableRowHover: {
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200],
+    },
+  },
+  tableButtonPanel: {
+    'display': 'flex',
+    'justify-content': 'center',
+  },
+  ...UIComponentStyle(theme),
+  ...UICreateStyle(theme),
+  ...UISnackbarStyle(theme),
 });
 
 
-class Portal extends Component {
+class WithThemePortal extends Component {
   constructor(props) {
     super(props);
   }
@@ -130,32 +153,17 @@ class Portal extends Component {
   render() {
     const { dispatch, classes, _model } = this.props;
     const state = _model.drawer.state;
+    let contentCmp;
+    if (_model.show.state === 'query') {
+      contentCmp = UITable(this.props);
+    } else if (_model.show.state === 'create' || _model.show.state === 'edit') {
+      contentCmp = UICreate(this.props);
+    }
     return (
-    <MuiThemeProvider theme={theme}>
       <div className={classes.root}>
         <CssBaseline />
-        <AppBar
-          position="fixed"
-          className={classNames(classes.appBar, {
-            [classes.appBarShift]: state,
-          })}
-        >
-          <Toolbar disableGutters={!state}>
-            <IconButton
-              color="inherit"
-              aria-label="Open drawer"
-              onClick={this.changeValueAction(this.props)}
-              className={classNames(classes.menuButton, {
-                [classes.hide]: state,
-              })}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" color="inherit" noWrap>
-              控制台
-            </Typography>
-          </Toolbar>
-        </AppBar>
+        {UIAppBar(this.props)}
+        {UISnackbar(this.props)}
         <Drawer
           variant="permanent"
           className={classNames(classes.drawer, {
@@ -196,12 +204,26 @@ class Portal extends Component {
         </Drawer>
         <main className={classes.content}>
           <div className={classes.toolbar} />
-          {UITable(this.props)}
+          {contentCmp}
         </main>
-      </div>
-      
+      </div>);
+  }
+}
+
+class Portal extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const {classes, _model, theme} = this.props;
+    
+    return (
+    <MuiThemeProvider theme={theme}>
+      <WithThemePortal {...this.props}/>
     </MuiThemeProvider>);
   }
 }
+
 
 export default connect(state => state.reducer)(withStyles(styles, { withTheme: true })(Portal));

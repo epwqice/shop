@@ -8,6 +8,7 @@ module.exports = (env) => {
     entry: {
       item: './src/service/item.js',
       portal: './src/service/portal.js',
+      login: './src/service/login.js',
       vendor: ['react'],
     },
     output: {

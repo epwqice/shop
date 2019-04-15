@@ -36,27 +36,59 @@ const deepCopyModel = (src, skipKey) => {
   return targ;
 };
 
-const updata = (src, path, value) => {
-  if (!src) {
-    return;
+const deleteObj = (src, path) => modelOperation(src, path, 'delete');
+
+const modelOperation = (src, path, operation, value) => {
+  if (src === undefined || src === null) {
+    return src;
   }
   const paths = path.path.split('/');
-  let tModel = src;
+  let tModel = src, resultModel = null, tResultModel, find = true;
   for (let i = 1, length = paths.length;i < length;i++) {
+    const tPath = paths[i];
     if (i + 1 === length) {
-      tModel[paths[i]] = value;
+      if (operation === 'updata') {
+        tModel[tPath] = value;
+      } else if (operation === 'delete') {
+        delete tModel[paths[i]];
+      } else {
+        // 暂无
+      }
+
     } else {
-      tModel = tModel[paths[i]];
+      tModel = {
+        ...tModel,
+      };
+      if (1 === i) {
+        resultModel = tModel;
+        tResultModel = resultModel;
+      }
+      tModel[tPath] = {
+        ...tModel[tPath]
+      };
+      tModel = tModel[tPath];
+      tResultModel[tPath] = tModel;
+      tResultModel = tResultModel[tPath];
       if (tModel === null || tModel === undefined) {
+        find = false;
         break;
       }
     }
   }
+
+  if (find) {
+    return resultModel;
+  }
+
+  return src;
 };
+
+const updata = (src, path, value) => modelOperation(src, path, 'updata', value)
 
 const ModelUtil = {
   deepCopyModel,
   updata,
+  deleteObj,
 };
 
 export default ModelUtil;

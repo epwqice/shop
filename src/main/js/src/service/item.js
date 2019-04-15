@@ -11,4 +11,6 @@ MsgUtil.get('/rest/item', (json) => {
     ItemModel._model.category.items = json.content.datas;
     start('app', ItemModel, <View {...ItemModel} />);
   }
+}, () => {
+  
 });

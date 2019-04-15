@@ -1,10 +1,15 @@
-const get = (url, successFunc, failFunc) => {
+const msg = (url, json, msgType, successFunc, failFunc) => {
   const body = {
-    method: 'Get',
+    method: msgType,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      credentials: 'include',
     },
   };
+
+  if (msgType === 'Post' || msgType === 'Delete') {
+    body.body = JSON.stringify(json);
+  }
 
   let sendUrl = window.location.origin + url;
 
@@ -18,6 +23,12 @@ const get = (url, successFunc, failFunc) => {
     }
   });
 }
+
+const post = (url, json, successFunc, failFunc) => msg(url, json, 'Post', successFunc, failFunc);
+
+const deleteMsg = (url, json, successFunc, failFunc) => msg(url, json, 'Delete', successFunc, failFunc);
+
+const get = (url, successFunc, failFunc) => msg(url, null, 'Get', successFunc, failFunc);
 
 /**
  * 计算分页表格url参数
@@ -39,6 +50,8 @@ const isSuccess = (json) => 0 === json.result;
 
 const MsgUtil = {
   get,
+  post,
+  delete: deleteMsg,
   isSuccess,
   computePageTableParam,
 }

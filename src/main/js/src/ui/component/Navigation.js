@@ -48,12 +48,12 @@ const OrderNavigation = (total, cls) => {
 
 const Navigation = (props) => {
   const { _model, classes } = props;
-  let total = 0;
-  Object.keys(_model.order.category).forEach(key => {
-    total += _model.order.category[key];
-  });
+  // let total = 0;
+  // Object.keys(_model.order.category).forEach(key => {
+  //   total += _model.order.category[key];
+  // });
   
-  const orderNav = OrderNavigation(total, classes.navigationBadge);
+  // const orderNav = OrderNavigation(total, classes.navigationBadge);
   return (
     // <BottomNavigation
     //   value={_model.navigation.value}
@@ -84,4 +84,3 @@ const Navigation = (props) => {
 }
 
 export default Navigation;
-// export default Navigation;

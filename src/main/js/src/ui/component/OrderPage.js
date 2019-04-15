@@ -8,9 +8,21 @@ import ShopItem from './ShopItem';
 import Typography from '@material-ui/core/Typography';
 import OrderItemList from './OrderItemList';
 import { updata } from '../../action';
+import MsgUtil from '../../util/MsgUtil';
 
 const changeValueAction = (props) => (e, value) => {
   const { dispatch } = props;
+  dispatch(updata({
+    path: '/_model/order/pageIndex',
+  }, value));
+}
+
+const payAction = (props) => (e, value) => {
+  // 发送消息
+  MsgUtil.get
+  // 1.成功
+  // 1.1 清空购物车
+  // 2.失败
   dispatch(updata({
     path: '/_model/order/pageIndex',
   }, value));
@@ -43,7 +55,11 @@ const OrderPage = (props) => {
         <Typography component="h5" variant="h5" className={classes.orderTotalText}>
           总计:{_model.order.total}元
         </Typography>
-        <Button variant="contained" color="primary" className={classes.orderTotalButton}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={payAction(props)}
+          className={classes.orderTotalButton}>
           付款
         </Button>
       </div>

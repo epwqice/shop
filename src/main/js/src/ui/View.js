@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import ShopPage from './component/ShopPage';
 import OrderPage from './component/OrderPage';
+import UserPage from './component/UserPage';
 import Navigation from './component/Navigation';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -135,6 +136,9 @@ class View extends Component {
         break;
       case 2:
         contentPage = OrderPage(this.props);
+        break;
+      case 3: 
+        contentPage = UserPage(this.props);
         break;
       default: 
         contentPage = ShopPage(this.props);

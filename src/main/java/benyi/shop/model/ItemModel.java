@@ -15,7 +15,8 @@ public class ItemModel {
 	/**
 	 * 标识
 	 */
-	private String id;
+	private String _id;
+	
 	/**
 	 * 名称
 	 */
@@ -36,5 +37,13 @@ public class ItemModel {
 	 */
 	private String unit;
 	
+	/**
+	 * 图片
+	 */
 	private String picture;
+	
+	/**
+	 * 库存
+	 */
+	private String num;
 }

@@ -1,5 +1,6 @@
 export const CREATE_ACTION = 'CREATE_ACTION';
 export const UPDATA_ACTION = 'UPDATA_ACTION';
+export const DELETE_ACTION = 'DELETE_ACTION';
 
 /**
  * 创建操作
@@ -12,10 +13,15 @@ export const create = (path, value) => ({
   value,
 });
 
+export const deleteObj = (path) => ({
+  type: DELETE_ACTION,
+  path,
+});
+
 /**
  * 更新操作
- * @param {*} path 路径
- * @param {*} value 值
+ * @param {string} path 路径
+ * @param {object} value 值
  */
 export const updata = (path, value) => ({
   type: UPDATA_ACTION,
